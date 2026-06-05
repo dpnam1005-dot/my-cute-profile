@@ -7,7 +7,6 @@
     <!-- Nhúng Font chữ dễ thương từ Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* */
         /* === BIẾN MÀU SẮC (CSS Variables) === */
         :root {
             --bg-color: #fff0f5; /* LavenderBlush */
@@ -35,7 +34,6 @@
             overflow: hidden; /* Ẩn thanh cuộn do canvas */
         }
 
-        /* */
         /* === CANVAS BACKGROUND === */
         #sakura-canvas {
             position: absolute;
@@ -67,7 +65,6 @@
             transform: translateY(-5px);
         }
 
-        /* */
         /* === AVATAR SECTION === */
         .avatar-container {
             position: relative;
@@ -131,7 +128,7 @@
 
         .badge-1 { top: -10px; right: -20px; animation: float 3s ease-in-out infinite; }
         .badge-2 { bottom: 10px; left: -30px; animation: float 3s ease-in-out infinite reverse; }
-        .badge-4 { bottom: -5px; right: -15px; animation: float 3.2s ease-in-out infinite; } /* Thêm dòng này */
+        .badge-4 { bottom: -5px; right: -15px; animation: float 3.2s ease-in-out infinite; }
 
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -139,7 +136,6 @@
             100% { transform: translateY(0px); }
         }
 
-        /* */
         /* === TEXT INPUTS TÙY CHỈNH === */
         input[type="text"], textarea {
             width: 100%;
@@ -184,8 +180,8 @@
             color: var(--primary-pink);
             line-height: 1.4;
             margin-bottom: 20px;
-            height: 70px; /* Chiều cao cố định cho textarea */
-            overflow: hidden; /* Ẩn thanh cuộn nếu bị tràn */
+            height: 70px;
+            overflow: hidden;
         }
 
         .user-desc {
@@ -193,8 +189,8 @@
             color: var(--text-light);
             line-height: 1.6;
             margin-bottom: 25px;
-            height: 75px; /* Tăng chiều cao từ 60px lên 75px để vừa nội dung dài */
-            overflow: hidden; /* Ẩn thanh cuộn */
+            height: 75px;
+            overflow: hidden;
         }
 
         /* === BUTTONS === */
@@ -241,7 +237,6 @@
             background: #ffe4e1;
         }
 
-        /* Toast thông báo */
         .toast {
             position: absolute;
             bottom: -50px;
@@ -267,7 +262,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.6);
-            display: none; /* Ẩn mặc định */
+            display: none;
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -323,27 +318,20 @@
 </head>
 <body>
 
-    <!-- -->
-    <!-- Lớp nền Canvas chứa hiệu ứng hoa rơi -->
     <canvas id="sakura-canvas"></canvas>
 
-    <!-- Thẻ Profile HTML -->
     <div class="profile-card">
         
-        <!-- Khung ảnh đại diện -->
         <div class="avatar-container" id="avatar-container">
-            <!-- Đã thay bằng một ảnh placeholder dễ thương -->
             <img id="avatar-img" src="https://api.dicebear.com/9.x/micah/svg?seed=HieuHanh&backgroundColor=ffb7c5" alt="Avatar">
             <div class="avatar-overlay" id="avatar-overlay">Thay ảnh</div>
             <input type="file" id="file-upload" accept="image/*" hidden>
             
-            <!-- Tags lơ lửng -->
-            <div class="badge badge-1">Chuyên nghiệp</div>
-            <div class="badge badge-2">Tận tâm</div>
-            <div class="badge badge-4">Xinh đẹp</div>
+            <div class="badge badge-1">Uống 2 lít nước chưa?</div>
+            <div class="badge badge-2">Thẳng lưng</div>
+            <div class="badge badge-4">Xin chào</div>
         </div>
 
-        <!-- Thông tin có thể chỉnh sửa -->
         <input type="text" class="user-name" id="input-name" value="HIỂU HẠNH">
         <div class="user-role">SALES ADMIN</div>
         
@@ -351,13 +339,11 @@
         
         <textarea class="user-desc" id="input-desc">Phía sau đội Sales "chốt đơn như gió" là một Sales Admin âm thầm check lại hợp đồng lần thứ 3 =)))</textarea>
 
-        <!-- Nút tương tác -->
         <div class="btn-group">
             <button class="btn btn-save" id="btn-save">Lưu thay đổi</button>
             <button class="btn btn-portfolio" id="btn-portfolio">Xem Portfolio</button>
         </div>
 
-        <!-- Thông báo lưu thành công -->
         <div class="toast" id="toast-msg">Đã cập nhật thành công! ✨</div>
     </div>
 
@@ -365,16 +351,12 @@
     <div class="modal-overlay" id="portfolio-modal">
         <div class="modal-content">
             <span class="close-modal" id="close-modal">&times;</span>
-            <!-- Bạn sẽ cần tải file ảnh này lên Github cùng chỗ với file HTML -->
-            <img src="0a4e3118027cb6a30d1017bf04880814.jpg" alt="Portfolio">
+            <!-- Ảnh từ đường dẫn Pinterest -->
+            <img src="https://i.pinimg.com/736x/88/54/65/8854652285a85086d06695279603094c.jpg" alt="Portfolio">
         </div>
     </div>
 
-    <!-- -->
     <script type="module">
-        /* =========================================
-           PHẦN 1: TÍCH HỢP FIREBASE CỦA BẠN
-           ========================================= */
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -384,17 +366,15 @@
         const avatarImg = document.getElementById('avatar-img');
         const avatarOverlay = document.getElementById('avatar-overlay');
         const btnSave = document.getElementById('btn-save');
-        const btnPortfolio = document.getElementById('btn-portfolio'); // Lấy nút Portfolio
+        const btnPortfolio = document.getElementById('btn-portfolio');
         const toastMsg = document.getElementById('toast-msg');
 
-        // Các thành phần của Modal Portfolio
         const portfolioModal = document.getElementById('portfolio-modal');
         const closeModal = document.getElementById('close-modal');
 
         let db, currentUser;
         let isReadOnly = false;
 
-        // 1. CẤU HÌNH FIREBASE CỦA BẠN (Giữ nguyên cấu hình của bạn)
         const firebaseConfig = {
             apiKey: "AIzaSyA1D0XaTN1m8rz1iyKbdzkWQTvdvbDOwCA",
             authDomain: "project-8798774196934518938.firebaseapp.com",
@@ -405,12 +385,10 @@
             measurementId: "G-HPF1TR6VTC"
         };
 
-        // Khởi tạo app và db
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         db = getFirestore(app);
 
-        // Khởi tạo đăng nhập ẩn danh
         const initAuth = async () => {
             try {
                 await signInAnonymously(auth);
@@ -427,14 +405,11 @@
             }
         });
 
-        // 2. Kiểm tra URL xem có ID chia sẻ không
         async function checkUrlAndLoad() {
             const urlParams = new URLSearchParams(window.location.search);
             const sharedId = urlParams.get('id');
 
-            // SỬA Ở ĐÂY: Thêm điều kiện kiểm tra xem ID trên link có khác với ID của chính bạn không
             if (sharedId && sharedId !== currentUser.uid) {
-                // Chế độ cho người xem link chia sẻ (Read-Only)
                 isReadOnly = true;
                 document.getElementById('input-name').readOnly = true;
                 document.getElementById('input-quote').readOnly = true;
@@ -445,7 +420,6 @@
                 avatarContainer.style.cursor = 'default';
 
                 try {
-                    // Tải data từ Firestore (Tập hợp 'profiles')
                     const docRef = doc(db, 'profiles', sharedId);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
@@ -454,14 +428,11 @@
                         if (data.quote) document.getElementById('input-quote').value = data.quote;
                         if (data.desc) document.getElementById('input-desc').value = data.desc;
                         if (data.avatar) avatarImg.src = data.avatar;
-                    } else {
-                        showToast("Không tìm thấy hồ sơ này!", "#f44336");
                     }
                 } catch (e) {
                     console.error("Lỗi khi tải dữ liệu:", e);
                 }
             } else {
-                // Nạp dữ liệu offline của mình
                 loadSavedDataLocal();
             }
         }
@@ -486,16 +457,10 @@
             setTimeout(() => toastMsg.classList.remove('show'), 3000);
         }
 
-        /* */
-        /* =========================================
-           PHẦN 2: LOGIC FORM & XỬ LÝ ẢNH
-           ========================================= */
-
         avatarContainer.addEventListener('click', (e) => {
             if (!isReadOnly) fileUpload.click();
         });
 
-        // Hàm nén ảnh trước khi tải lên Cloud
         function resizeImage(file, maxWidth, maxHeight, callback) {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -511,7 +476,7 @@
                     cvs.width = width; cvs.height = height;
                     const ctxCvs = cvs.getContext('2d');
                     ctxCvs.drawImage(img, 0, 0, width, height);
-                    callback(cvs.toDataURL('image/jpeg', 0.8)); // Nén JPEG 80%
+                    callback(cvs.toDataURL('image/jpeg', 0.8));
                 }
                 img.src = e.target.result;
             }
@@ -526,19 +491,13 @@
                     return;
                 }
 
-                // Nếu là ảnh động (GIF), đọc trực tiếp để giữ nguyên hiệu ứng
                 if (file.type === 'image/gif') {
-                    // Cảnh báo nếu file GIF quá nặng (Lớn hơn 1MB có thể khó lưu lên Firebase)
-                    if (file.size > 1048576) {
-                        showToast('Lưu ý: Ảnh GIF khá nặng, lưu lên Cloud có thể hơi lâu!', "#ff9800");
-                    }
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         avatarImg.src = e.target.result;
                     };
                     reader.readAsDataURL(file);
                 } else {
-                    // Nếu là ảnh tĩnh bình thường (JPG, PNG) thì nén lại cho nhẹ
                     resizeImage(file, 300, 300, (compressedBase64) => {
                         avatarImg.src = compressedBase64;
                     });
@@ -546,37 +505,23 @@
             }
         });
 
-        /* === XỬ LÝ SỰ KIỆN MỞ/ĐÓNG PORTFOLIO === */
-        
-        // Mở popup khi bấm "Xem Portfolio"
         btnPortfolio.addEventListener('click', () => {
             portfolioModal.style.display = 'flex';
-            // Dùng setTimeout nhỏ để hiệu ứng mờ dần (fade-in) kích hoạt mượt mà
-            setTimeout(() => {
-                portfolioModal.classList.add('show');
-            }, 10);
+            setTimeout(() => portfolioModal.classList.add('show'), 10);
         });
 
-        // Đóng popup khi bấm vào dấu X
         closeModal.addEventListener('click', () => {
             portfolioModal.classList.remove('show');
-            setTimeout(() => {
-                portfolioModal.style.display = 'none';
-            }, 300); // Chờ hiệu ứng css chạy xong mới ẩn hẳn
+            setTimeout(() => portfolioModal.style.display = 'none', 300);
         });
 
-        // Tự động đóng popup nếu người dùng click ra vùng màu đen bên ngoài ảnh
         portfolioModal.addEventListener('click', (e) => {
             if (e.target === portfolioModal) {
                 portfolioModal.classList.remove('show');
-                setTimeout(() => {
-                    portfolioModal.style.display = 'none';
-                }, 300);
+                setTimeout(() => portfolioModal.style.display = 'none', 300);
             }
         });
 
-        /* */
-        // Sự kiện Lưu thay đổi (Vào Local và Firebase)
         btnSave.addEventListener('click', async function() {
             const name = document.getElementById('input-name').value;
             const quote = document.getElementById('input-quote').value;
@@ -590,43 +535,23 @@
 
             const originalText = this.innerText;
             this.innerText = "Đang đồng bộ Cloud...";
-            this.style.transform = "scale(0.95)";
 
             if (currentUser && db) {
                 try {
-                    // ĐÃ SỬA LẠI ĐƯỜNG DẪN LƯU TRỮ VÀO ĐÚNG THƯ MỤC 'profiles' CHUẨN CỦA BẠN
                     const docRef = doc(db, 'profiles', currentUser.uid);
                     await setDoc(docRef, {
                         name, quote, desc, avatar: avatarBase64, 
                         updatedAt: new Date().toISOString()
                     });
-
-                    try {
-                        // TỰ ĐỘNG CẬP NHẬT URL TRÊN THANH ĐỊA CHỈ TRÌNH DUYỆT CÓ CHỨA ID
-                        // Việc này có thể gây lỗi khi chạy trong môi trường Sandbox/Iframe nên cần try-catch
-                        const currentUrl = new URL(window.location.href);
-                        currentUrl.searchParams.set('id', currentUser.uid);
-                        window.history.pushState({path: currentUrl.toString()}, '', currentUrl.toString());
-                    } catch (historyError) {
-                        console.warn("Không thể tự động đổi URL trong môi trường hiện tại (Sandbox). Tính năng này sẽ hoạt động khi deploy lên host thật.");
-                    }
-
-                    showToast("Đã lưu! Hãy copy link ở thanh địa chỉ để gửi bạn bè ✨");
+                    showToast("Đã lưu! ✨");
                 } catch (e) {
-                    console.error("Lỗi lưu Cloud:", e);
-                    showToast("Lưu cục bộ. Bị chặn bởi Firebase Rules!", "#ff9800");
+                    showToast("Lưu cục bộ!", "#ff9800");
                 }
             } else {
                  showToast("Đã lưu cục bộ! ✨");
             }
-
             this.innerText = originalText;
-            this.style.transform = "scale(1)";
         });
-
-        /* =========================================
-           PHẦN 3: LOGIC HIỆU ỨNG HOA RƠI (CANVAS)
-           ========================================= */
 
         const canvas = document.getElementById('sakura-canvas');
         const ctx = canvas.getContext('2d');
@@ -673,7 +598,6 @@
             requestAnimationFrame(animate);
         }
         animate();
-
     </script>
 </body>
 </html>
