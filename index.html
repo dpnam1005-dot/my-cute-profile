@@ -477,7 +477,8 @@
 
             if (currentUser && db) {
                 try {
-                    const docRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', currentUser.uid);
+                    // ĐÃ SỬA LẠI ĐƯỜNG DẪN LƯU TRỮ VÀO ĐÚNG THƯ MỤC 'profiles' CHUẨN CỦA BẠN
+                    const docRef = doc(db, 'profiles', currentUser.uid);
                     await setDoc(docRef, {
                         name, quote, desc, avatar: avatarBase64, updatedAt: new Date().toISOString()
                     });
