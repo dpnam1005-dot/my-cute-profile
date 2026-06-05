@@ -7,6 +7,7 @@
     <!-- Nhúng Font chữ dễ thương từ Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* */
         /* === BIẾN MÀU SẮC (CSS Variables) === */
         :root {
             --bg-color: #fff0f5; /* LavenderBlush */
@@ -34,6 +35,7 @@
             overflow: hidden; /* Ẩn thanh cuộn do canvas */
         }
 
+        /* */
         /* === CANVAS BACKGROUND === */
         #sakura-canvas {
             position: absolute;
@@ -65,6 +67,7 @@
             transform: translateY(-5px);
         }
 
+        /* */
         /* === AVATAR SECTION === */
         .avatar-container {
             position: relative;
@@ -134,6 +137,7 @@
             100% { transform: translateY(0px); }
         }
 
+        /* */
         /* === TEXT INPUTS TÙY CHỈNH === */
         input[type="text"], textarea {
             width: 100%;
@@ -179,6 +183,7 @@
             line-height: 1.4;
             margin-bottom: 20px;
             height: 70px; /* Chiều cao cố định cho textarea */
+            overflow: hidden; /* Ẩn thanh cuộn nếu bị tràn */
         }
 
         .user-desc {
@@ -186,7 +191,8 @@
             color: var(--text-light);
             line-height: 1.6;
             margin-bottom: 25px;
-            height: 60px;
+            height: 75px; /* Tăng chiều cao từ 60px lên 75px để vừa nội dung dài */
+            overflow: hidden; /* Ẩn thanh cuộn */
         }
 
         /* === BUTTONS === */
@@ -233,31 +239,6 @@
             background: #ffe4e1;
         }
 
-        /* Vùng hiển thị link chia sẻ */
-        .share-container {
-            margin-top: 15px;
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .share-input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid var(--primary-pink);
-            background: rgba(255, 255, 255, 0.5);
-            font-size: 12px;
-            color: var(--text-dark);
-            text-align: center;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         /* Toast thông báo */
         .toast {
             position: absolute;
@@ -278,11 +259,11 @@
             bottom: 20px;
             opacity: 1;
         }
-
     </style>
 </head>
 <body>
 
+    <!-- -->
     <!-- Lớp nền Canvas chứa hiệu ứng hoa rơi -->
     <canvas id="sakura-canvas"></canvas>
 
@@ -311,20 +292,15 @@
 
         <!-- Nút tương tác -->
         <div class="btn-group">
-            <button class="btn btn-save" id="btn-save">Lưu nội dung</button>
+            <button class="btn btn-save" id="btn-save">Lưu thay đổi</button>
             <button class="btn btn-portfolio">Xem Portfolio</button>
-        </div>
-
-        <!-- Vùng hiển thị link chia sẻ -->
-        <div class="share-container" id="share-container">
-            <input type="text" class="share-input" id="share-link" readonly>
-            <button class="btn btn-portfolio" id="btn-copy-link">📋 Copy Link Chia Sẻ</button>
         </div>
 
         <!-- Thông báo lưu thành công -->
         <div class="toast" id="toast-msg">Đã cập nhật thành công! ✨</div>
     </div>
 
+    <!-- -->
     <script type="module">
         /* =========================================
            PHẦN 1: TÍCH HỢP FIREBASE CỦA BẠN
@@ -339,14 +315,11 @@
         const avatarOverlay = document.getElementById('avatar-overlay');
         const btnSave = document.getElementById('btn-save');
         const toastMsg = document.getElementById('toast-msg');
-        const shareContainer = document.getElementById('share-container');
-        const shareLinkInput = document.getElementById('share-link');
-        const btnCopyLink = document.getElementById('btn-copy-link');
 
         let db, currentUser;
         let isReadOnly = false;
 
-        // 1. CẤU HÌNH FIREBASE CỦA BẠN
+        // 1. CẤU HÌNH FIREBASE CỦA BẠN (Giữ nguyên cấu hình của bạn)
         const firebaseConfig = {
             apiKey: "AIzaSyA1D0XaTN1m8rz1iyKbdzkWQTvdvbDOwCA",
             authDomain: "project-8798774196934518938.firebaseapp.com",
@@ -357,6 +330,7 @@
             measurementId: "G-HPF1TR6VTC"
         };
 
+        // Khởi tạo app và db
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         db = getFirestore(app);
@@ -378,13 +352,14 @@
             }
         });
 
+        /* */
         // 2. Kiểm tra URL xem có ID chia sẻ không
         async function checkUrlAndLoad() {
             const urlParams = new URLSearchParams(window.location.search);
             const sharedId = urlParams.get('id');
 
             if (sharedId) {
-                // Chế độ dành cho người được chia sẻ link (Chỉ xem)
+                // Chế độ cho người xem link chia sẻ
                 isReadOnly = true;
                 document.getElementById('input-name').readOnly = true;
                 document.getElementById('input-quote').readOnly = true;
@@ -395,7 +370,7 @@
                 avatarContainer.style.cursor = 'default';
 
                 try {
-                    // Lấy dữ liệu từ Cloud Firestore
+                    // Tải data từ Firestore (Tập hợp 'profiles')
                     const docRef = doc(db, 'profiles', sharedId);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
@@ -411,7 +386,7 @@
                     console.error("Lỗi khi tải dữ liệu:", e);
                 }
             } else {
-                // Chế độ của chính bạn (Lấy dữ liệu lưu nháp dưới máy lên)
+                // Nạp dữ liệu offline của mình
                 loadSavedDataLocal();
             }
         }
@@ -436,6 +411,7 @@
             setTimeout(() => toastMsg.classList.remove('show'), 3000);
         }
 
+        /* */
         /* =========================================
            PHẦN 2: LOGIC FORM & XỬ LÝ ẢNH
            ========================================= */
@@ -480,54 +456,48 @@
             }
         });
 
+        /* */
+        // Sự kiện Lưu thay đổi (Vào Local và Firebase)
         btnSave.addEventListener('click', async function() {
             const name = document.getElementById('input-name').value;
             const quote = document.getElementById('input-quote').value;
             const desc = document.getElementById('input-desc').value;
             const avatarBase64 = avatarImg.src;
 
-            // Lưu nháp dưới máy
+            // Lưu nháp dưới máy (Local Storage)
             localStorage.setItem('cute_profile_name', name);
             localStorage.setItem('cute_profile_quote', quote);
             localStorage.setItem('cute_profile_desc', desc);
             localStorage.setItem('cute_profile_avatar', avatarBase64);
 
             const originalText = this.innerText;
-            this.innerText = "Đang đồng bộ Cloud...";
+            this.innerText = "Đang lưu lên Cloud...";
             this.style.transform = "scale(0.95)";
 
-            // Đẩy dữ liệu lên Cloud
+            // Đẩy dữ liệu lên Cloud Firestore (Chỉ lưu, KHÔNG hiện link)
             if (currentUser && db) {
                 try {
+                    // Lưu thẳng vào tập hợp (collection) 'profiles'
                     const docRef = doc(db, 'profiles', currentUser.uid);
                     await setDoc(docRef, {
                         name, quote, desc, avatar: avatarBase64, updatedAt: new Date().toISOString()
                     });
 
-                    // Tạo URL chia sẻ dựa trên tên miền hiện tại (ví dụ: tên-mien.github.io?id=...)
-                    const shareUrl = window.location.origin + window.location.pathname + '?id=' + currentUser.uid;
-                    shareLinkInput.value = shareUrl;
-                    shareContainer.style.display = 'flex'; 
-
-                    showToast("Đã tạo link chia sẻ thành công! ✨");
+                    // Báo thành công
+                    showToast("Đã lưu thành công lên Cloud! ✨");
                 } catch (e) {
                     console.error("Lỗi lưu Cloud:", e);
-                    showToast("Lưu cục bộ. Bạn chưa thiết lập Rules Firebase!", "#ff9800");
+                    showToast("Lưu cục bộ. Bị chặn bởi Firebase Rules!", "#ff9800");
                 }
+            } else {
+                 showToast("Đã lưu cục bộ! ✨");
             }
 
             this.innerText = originalText;
             this.style.transform = "scale(1)";
         });
 
-        btnCopyLink.addEventListener('click', () => {
-            shareLinkInput.select();
-            document.execCommand('copy');
-            const originalText = btnCopyLink.innerText;
-            btnCopyLink.innerText = "✅ Đã Copy!";
-            setTimeout(() => btnCopyLink.innerText = originalText, 2000);
-        });
-
+        /* */
         /* =========================================
            PHẦN 3: LOGIC HIỆU ỨNG HOA RƠI (CANVAS)
            ========================================= */
