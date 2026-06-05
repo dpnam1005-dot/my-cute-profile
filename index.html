@@ -9,7 +9,7 @@
     <style>
         /* === BIẾN MÀU SẮC (CSS Variables) === */
         :root {
-            --bg-color: #fff0f5; 
+            --bg-color: #fff0f5; /* LavenderBlush */
             --card-bg: rgba(255, 255, 255, 0.85);
             --primary-pink: #ff8da1;
             --text-dark: #5a3d46;
@@ -18,7 +18,11 @@
         }
 
         /* === RESET & LAYOUT CƠ BẢN === */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: 'Quicksand', sans-serif;
@@ -27,55 +31,99 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden; 
+            overflow: hidden; /* Ẩn thanh cuộn do canvas */
         }
 
         /* === CANVAS BACKGROUND === */
         #sakura-canvas {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; pointer-events: none; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none; /* Xuyên thao tác chuột qua canvas */
         }
 
         /* === MAIN CARD STYLING === */
         .profile-card {
-            position: relative; z-index: 1; 
+            position: relative;
+            z-index: 1; /* Nằm trên canvas */
             background: var(--card-bg);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            width: 340px; border-radius: 30px; padding: 40px 30px;
-            box-shadow: var(--shadow); text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            width: 340px;
+            border-radius: 30px;
+            padding: 40px 30px;
+            box-shadow: var(--shadow);
+            text-align: center;
             border: 2px solid rgba(255, 255, 255, 0.5);
             transition: transform 0.3s ease;
         }
 
-        .profile-card:hover { transform: translateY(-5px); }
+        .profile-card:hover {
+            transform: translateY(-5px);
+        }
 
         /* === AVATAR SECTION === */
         .avatar-container {
-            position: relative; width: 120px; height: 120px;
-            margin: 0 auto 20px; cursor: pointer; border-radius: 50%;
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            cursor: pointer;
+            border-radius: 50%;
             box-shadow: 0 8px 20px rgba(255, 141, 161, 0.4);
-            transition: transform 0.2s; background: white; padding: 4px;
+            transition: transform 0.2s;
+            background: white;
+            padding: 4px;
         }
-        .avatar-container:hover { transform: scale(1.05); }
+
+        .avatar-container:hover {
+            transform: scale(1.05);
+        }
+
         .avatar-container img {
-            width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
         }
 
         .avatar-overlay {
-            position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px;
-            background: rgba(0, 0, 0, 0.4); border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            color: white; font-size: 12px; font-weight: 600;
-            opacity: 0; transition: opacity 0.3s;
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
-        .avatar-container:hover .avatar-overlay { opacity: 1; }
+
+        .avatar-container:hover .avatar-overlay {
+            opacity: 1;
+        }
 
         /* Badges bay quanh avatar */
         .badge {
-            position: absolute; background: white; color: var(--primary-pink);
-            font-size: 10px; font-weight: 700; padding: 5px 10px; border-radius: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); pointer-events: none; border: 1px solid #ffe4e1;
+            position: absolute;
+            background: white;
+            color: var(--primary-pink);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            pointer-events: none;
+            border: 1px solid #ffe4e1;
         }
         .badge-1 { top: -10px; right: -20px; animation: float 3s ease-in-out infinite; }
         .badge-2 { bottom: 10px; left: -30px; animation: float 3s ease-in-out infinite reverse; }
@@ -88,78 +136,192 @@
 
         /* === TEXT INPUTS TÙY CHỈNH === */
         input[type="text"], textarea {
-            width: 100%; border: none; background: transparent;
-            text-align: center; color: var(--text-dark); outline: none; resize: none;
-            transition: background 0.3s; border-radius: 8px;
+            width: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            color: var(--text-dark);
+            outline: none;
+            resize: none;
+            transition: background 0.3s;
+            border-radius: 8px;
         }
-        input[type="text"]:focus, textarea:focus { background: rgba(255, 141, 161, 0.05); }
 
-        .user-name { font-size: 24px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .user-role {
-            display: inline-block; font-size: 11px; font-weight: 700; color: var(--primary-pink);
-            border: 1px solid var(--primary-pink); padding: 4px 12px; border-radius: 15px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;
+        input[type="text"]:focus, textarea:focus {
+            background: rgba(255, 141, 161, 0.05);
         }
-        .user-quote { font-family: 'Dancing Script', cursive; font-size: 22px; color: var(--primary-pink); line-height: 1.4; margin-bottom: 20px; height: 70px; }
-        .user-desc { font-size: 13px; color: var(--text-light); line-height: 1.6; margin-bottom: 25px; height: 60px; }
+
+        .user-name {
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .user-role {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary-pink);
+            border: 1px solid var(--primary-pink);
+            padding: 4px 12px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .user-quote {
+            font-family: 'Dancing Script', cursive;
+            font-size: 22px;
+            color: var(--primary-pink);
+            line-height: 1.4;
+            margin-bottom: 20px;
+            height: 70px; /* Chiều cao cố định cho textarea */
+        }
+
+        .user-desc {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 25px;
+            height: 60px;
+        }
 
         /* === BUTTONS === */
-        .btn-group { display: flex; flex-direction: column; gap: 12px; }
-        .btn {
-            border: none; padding: 12px 20px; border-radius: 25px; font-family: 'Quicksand', sans-serif;
-            font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s ease; width: 100%;
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        .btn-save { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); color: #5a3d46; box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4); }
-        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 154, 158, 0.6); }
-        .btn-save:active { transform: translateY(0); }
-        .btn-portfolio { background: transparent; color: var(--text-dark); border: 2px solid #ffe4e1; }
-        .btn-portfolio:hover { background: #ffe4e1; }
+
+        .btn {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            color: #5a3d46;
+            box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 154, 158, 0.6);
+        }
+        
+        .btn-save:active {
+            transform: translateY(0);
+        }
+
+        .btn-portfolio {
+            background: transparent;
+            color: var(--text-dark);
+            border: 2px solid #ffe4e1;
+        }
+
+        .btn-portfolio:hover {
+            background: #ffe4e1;
+        }
 
         /* Vùng hiển thị link chia sẻ */
         .share-container {
-            margin-top: 15px; display: none; flex-direction: column; gap: 8px; animation: fadeIn 0.5s ease;
+            margin-top: 15px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            animation: fadeIn 0.5s ease;
         }
+
         .share-input {
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--primary-pink);
-            background: rgba(255, 255, 255, 0.5); font-size: 12px; color: var(--text-dark); text-align: center;
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-pink);
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            color: var(--text-dark);
+            text-align: center;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         /* Toast thông báo */
         .toast {
-            position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
-            background: #4caf50; color: white; padding: 8px 20px; border-radius: 20px;
-            font-size: 12px; font-weight: bold; opacity: 0; transition: all 0.3s ease; pointer-events: none;
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4caf50;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
         }
-        .toast.show { bottom: 20px; opacity: 1; }
+        .toast.show {
+            bottom: 20px;
+            opacity: 1;
+        }
+
     </style>
 </head>
 <body>
 
+    <!-- Lớp nền Canvas chứa hiệu ứng hoa rơi -->
     <canvas id="sakura-canvas"></canvas>
 
+    <!-- Thẻ Profile HTML -->
     <div class="profile-card">
+        
+        <!-- Khung ảnh đại diện -->
         <div class="avatar-container" id="avatar-container">
+            <!-- Đã thay bằng một ảnh placeholder dễ thương -->
             <img id="avatar-img" src="https://api.dicebear.com/9.x/micah/svg?seed=HieuHanh&backgroundColor=ffb7c5" alt="Avatar">
             <div class="avatar-overlay" id="avatar-overlay">Thay ảnh</div>
             <input type="file" id="file-upload" accept="image/*" hidden>
+            
+            <!-- Tags lơ lửng -->
             <div class="badge badge-1">Chuyên nghiệp</div>
             <div class="badge badge-2">Tận tâm</div>
         </div>
 
+        <!-- Thông tin có thể chỉnh sửa -->
         <input type="text" class="user-name" id="input-name" value="HIỂU HẠNH">
         <div class="user-role">SALES ADMIN</div>
+        
         <textarea class="user-quote" id="input-quote">"Những gì xinh đẹp thường đúng một mình :>"</textarea>
+        
         <textarea class="user-desc" id="input-desc">Phía sau đội Sales "chốt đơn như gió" là một Sales Admin âm thầm check lại hợp đồng lần thứ 3 =)))</textarea>
 
+        <!-- Nút tương tác -->
         <div class="btn-group">
-            <button class="btn btn-save" id="btn-save">Lưu & Tạo Link</button>
+            <button class="btn btn-save" id="btn-save">Lưu nội dung</button>
+            <button class="btn btn-portfolio">Xem Portfolio</button>
         </div>
 
+        <!-- Vùng hiển thị link chia sẻ -->
         <div class="share-container" id="share-container">
             <input type="text" class="share-input" id="share-link" readonly>
             <button class="btn btn-portfolio" id="btn-copy-link">📋 Copy Link Chia Sẻ</button>
         </div>
 
+        <!-- Thông báo lưu thành công -->
         <div class="toast" id="toast-msg">Đã cập nhật thành công! ✨</div>
     </div>
 
