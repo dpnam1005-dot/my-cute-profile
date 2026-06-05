@@ -251,6 +251,9 @@
             opacity: 0;
             transition: all 0.3s ease;
             pointer-events: none;
+            z-index: 9999;
+            width: 90%;
+            text-align: center;
         }
         .toast.show {
             bottom: 20px;
@@ -335,7 +338,7 @@
         <input type="text" class="user-name" id="input-name" value="HIỂU HẠNH">
         <div class="user-role">SALES ADMIN</div>
         
-        <textarea class="user-quote" id="input-quote">"Những gì xinh đẹp thường đứng một mình :>"</textarea>
+        <textarea class="user-quote" id="input-quote">"Những gì xinh đẹp thường đúng một mình :>"</textarea>
         
         <textarea class="user-desc" id="input-desc">Phía sau đội Sales "chốt đơn như gió" là một Sales Admin âm thầm check lại hợp đồng lần thứ 3 =)))</textarea>
 
@@ -349,18 +352,18 @@
 
     <!-- KHUNG ẢNH PORTFOLIO ẨN -->
     <div class="modal-overlay" id="portfolio-modal">
-    <div class="modal-content">
-        <span class="close-modal" id="close-modal">&times;</span>
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
 
-        <h3 style="text-align:center; color:#5a3d46; font-family:'Quicksand',sans-serif;">
-            Đang cập nhật
-        </h3>
+            <h3 style="text-align:center; color:#5a3d46; font-family:'Quicksand',sans-serif;">
+                🚧 Đang cập nhật
+            </h3>
 
-        <p style="text-align:center; color:#666; font-family:'Quicksand',sans-serif;">
-            Chúng tôi sẽ cập nhật vào thời gian sớm nhất!
-        </p>
+            <p style="text-align:center; color:#666; font-family:'Quicksand',sans-serif;">
+                Chúng tôi sẽ cập nhật vào thời gian sớm nhất!
+            </p>
+        </div>
     </div>
-</div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -378,10 +381,19 @@
         const portfolioModal = document.getElementById('portfolio-modal');
         const closeModal = document.getElementById('close-modal');
 
-        let db, currentUser;
+        let db;
         let isReadOnly = false;
+        let hasLoaded = false;
 
-        const firebaseConfig = {
+        // ⚡ CƠ CHẾ UID DỰ PHÒNG ⚡
+        // Nếu trang web bị Firebase Auth chặn do chưa thêm domain, ta vẫn có 1 ID riêng để lưu vào Database.
+        let myUid = localStorage.getItem('cute_profile_uid');
+        if (!myUid) {
+            myUid = 'user_' + Math.random().toString(36).substring(2, 12);
+            localStorage.setItem('cute_profile_uid', myUid);
+        }
+
+        const fallbackConfig = {
             apiKey: "AIzaSyA1D0XaTN1m8rz1iyKbdzkWQTvdvbDOwCA",
             authDomain: "project-8798774196934518938.firebaseapp.com",
             projectId: "project-8798774196934518938",
@@ -390,6 +402,7 @@
             appId: "1:163874898866:web:f6843ee56eb1606b0e5aab",
             measurementId: "G-HPF1TR6VTC"
         };
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : fallbackConfig;
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -399,23 +412,30 @@
             try {
                 await signInAnonymously(auth);
             } catch (error) {
-                console.error("Lỗi đăng nhập:", error);
+                console.warn("Auth bị chặn (Có thể do chưa khai báo Tên miền). Sẽ dùng ID dự phòng:", myUid);
+                // Auth lỗi thì vẫn cho chạy hàm tải dữ liệu
+                checkUrlAndLoad();
             }
         };
         initAuth();
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUser = user;
-                checkUrlAndLoad(); 
+                myUid = user.uid; // Cập nhật sang UID chuẩn của Firebase
+                localStorage.setItem('cute_profile_uid', myUid);
             }
+            // Dù thành công hay thất bại cũng gọi hàm lấy dữ liệu để bạn bè luôn xem được
+            checkUrlAndLoad(); 
         });
 
         async function checkUrlAndLoad() {
+            if (hasLoaded) return; // Chặn không cho tải lại 2 lần
+            hasLoaded = true;
+
             const urlParams = new URLSearchParams(window.location.search);
             const sharedId = urlParams.get('id');
 
-            if (sharedId && sharedId !== currentUser.uid) {
+            if (sharedId && sharedId !== myUid) {
                 isReadOnly = true;
                 document.getElementById('input-name').readOnly = true;
                 document.getElementById('input-quote').readOnly = true;
@@ -436,7 +456,7 @@
                         if (data.avatar) avatarImg.src = data.avatar;
                     }
                 } catch (e) {
-                    console.error("Lỗi khi tải dữ liệu:", e);
+                    console.error("Lỗi khi tải dữ liệu từ Cloud:", e);
                 }
             } else {
                 loadSavedDataLocal();
@@ -460,7 +480,7 @@
             toastMsg.innerText = msg;
             toastMsg.style.background = bgColor;
             toastMsg.classList.add('show');
-            setTimeout(() => toastMsg.classList.remove('show'), 3000);
+            setTimeout(() => toastMsg.classList.remove('show'), 4000);
         }
 
         avatarContainer.addEventListener('click', (e) => {
@@ -482,7 +502,7 @@
                     cvs.width = width; cvs.height = height;
                     const ctxCvs = cvs.getContext('2d');
                     ctxCvs.drawImage(img, 0, 0, width, height);
-                    callback(cvs.toDataURL('image/jpeg', 0.8));
+                    callback(cvs.toDataURL('image/jpeg', 0.7)); // Đã nén nhẹ
                 }
                 img.src = e.target.result;
             }
@@ -498,13 +518,18 @@
                 }
 
                 if (file.type === 'image/gif') {
+                    // Tăng giới hạn lên 1MB (1,048,576 bytes)
+                    if (file.size > 1048576) {
+                        showToast('Ảnh GIF quá nặng (Tối đa 1MB)! Vui lòng chọn ảnh nhẹ hơn.', "#f44336");
+                        return;
+                    }
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         avatarImg.src = e.target.result;
                     };
                     reader.readAsDataURL(file);
                 } else {
-                    resizeImage(file, 300, 300, (compressedBase64) => {
+                    resizeImage(file, 250, 250, (compressedBase64) => {
                         avatarImg.src = compressedBase64;
                     });
                 }
@@ -533,6 +558,12 @@
             const quote = document.getElementById('input-quote').value;
             const desc = document.getElementById('input-desc').value;
             const avatarBase64 = avatarImg.src;
+
+            // Nới rộng giới hạn lưu Base64 để hỗ trợ ảnh GIF 1MB. (Lưu ý giới hạn tuyệt đối của Firestore là ~1.048MB)
+            if (avatarBase64.length > 1048400) {
+                showToast("Dung lượng ảnh sau khi xử lý vượt mức 1MB của Cloud! Vui lòng chọn ảnh khác nhỏ hơn.", "#f44336");
+                return;
+            }
             
             localStorage.setItem('cute_profile_name', name);
             localStorage.setItem('cute_profile_quote', quote);
@@ -542,19 +573,38 @@
             const originalText = this.innerText;
             this.innerText = "Đang đồng bộ Cloud...";
 
-            if (currentUser && db) {
+            if (db) {
                 try {
-                    const docRef = doc(db, 'profiles', currentUser.uid);
+                    // Dùng myUid để lưu (đảm bảo lúc nào cũng có ID dù Auth lỗi)
+                    const docRef = doc(db, 'profiles', myUid);
                     await setDoc(docRef, {
                         name, quote, desc, avatar: avatarBase64, 
                         updatedAt: new Date().toISOString()
                     });
-                    showToast("Đã lưu! ✨");
+
+                    // Cập nhật link trên trình duyệt
+                    const newUrl = new URL(window.location.href);
+                    newUrl.searchParams.set('id', myUid);
+                    window.history.pushState({path: newUrl.href}, '', newUrl.href);
+
+                    // ⚡ TỰ ĐỘNG COPY LINK VÀO BỘ NHỚ TẠM ⚡
+                    try {
+                        const copyInput = document.createElement("input");
+                        copyInput.value = newUrl.href;
+                        document.body.appendChild(copyInput);
+                        copyInput.select();
+                        document.execCommand("copy");
+                        document.body.removeChild(copyInput);
+                        
+                        showToast("Đã lưu thành công & Đã tự động COPY LINK! Dán gửi bạn bè ngay ✨", "#4caf50");
+                    } catch(err) {
+                        showToast("Đã lưu! Vui lòng copy đường link trên thanh địa chỉ để gửi ✨");
+                    }
+
                 } catch (e) {
-                    showToast("Lưu cục bộ!", "#ff9800");
+                    console.error("Lỗi lưu lên Cloud:", e);
+                    showToast("Lỗi kết nối Firebase! Lưu cục bộ thành công.", "#ff9800");
                 }
-            } else {
-                 showToast("Đã lưu cục bộ! ✨");
             }
             this.innerText = originalText;
         });
