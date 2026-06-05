@@ -130,6 +130,7 @@
         }
         .badge-1 { top: -10px; right: -20px; animation: float 3s ease-in-out infinite; }
         .badge-2 { bottom: 10px; left: -30px; animation: float 3s ease-in-out infinite reverse; }
+        .badge-4 { bottom: -5px; right: -15px; animation: float 3.2s ease-in-out infinite; } /* Thêm dòng này */
 
         @keyframes float {
             0% { transform: translateY(0px); }
@@ -280,6 +281,7 @@
             <!-- Tags lơ lửng -->
             <div class="badge badge-1">Chuyên nghiệp</div>
             <div class="badge badge-2">Tận tâm</div>
+            <div class="badge badge-4">Xinh đẹp</div>
         </div>
 
         <!-- Thông tin có thể chỉnh sửa -->
@@ -464,27 +466,33 @@
             const desc = document.getElementById('input-desc').value;
             const avatarBase64 = avatarImg.src;
 
-            // Lưu nháp dưới máy (Local Storage)
             localStorage.setItem('cute_profile_name', name);
             localStorage.setItem('cute_profile_quote', quote);
             localStorage.setItem('cute_profile_desc', desc);
             localStorage.setItem('cute_profile_avatar', avatarBase64);
 
             const originalText = this.innerText;
-            this.innerText = "Đang lưu lên Cloud...";
+            this.innerText = "Đang đồng bộ Cloud...";
             this.style.transform = "scale(0.95)";
 
-            // Đẩy dữ liệu lên Cloud Firestore (Chỉ lưu, KHÔNG hiện link)
             if (currentUser && db) {
                 try {
-                    // Lưu thẳng vào tập hợp (collection) 'profiles'
-                    const docRef = doc(db, 'profiles', currentUser.uid);
+                    const docRef = doc(db, 'artifacts', APP_ID, 'public', 'data', 'profiles', currentUser.uid);
                     await setDoc(docRef, {
                         name, quote, desc, avatar: avatarBase64, updatedAt: new Date().toISOString()
                     });
 
-                    // Báo thành công
-                    showToast("Đã lưu thành công lên Cloud! ✨");
+                    try {
+                        // TỰ ĐỘNG CẬP NHẬT URL TRÊN THANH ĐỊA CHỈ TRÌNH DUYỆT CÓ CHỨA ID
+                        // Việc này có thể gây lỗi khi chạy trong môi trường Sandbox/Iframe nên cần try-catch
+                        const currentUrl = new URL(window.location.href);
+                        currentUrl.searchParams.set('id', currentUser.uid);
+                        window.history.pushState({path: currentUrl.toString()}, '', currentUrl.toString());
+                    } catch (historyError) {
+                        console.warn("Không thể tự động đổi URL trong môi trường hiện tại (Sandbox). Tính năng này sẽ hoạt động khi deploy lên host thật.");
+                    }
+
+                    showToast("Đã lưu! Hãy copy link ở thanh địa chỉ để gửi bạn bè ✨");
                 } catch (e) {
                     console.error("Lỗi lưu Cloud:", e);
                     showToast("Lưu cục bộ. Bị chặn bởi Firebase Rules!", "#ff9800");
@@ -497,7 +505,6 @@
             this.style.transform = "scale(1)";
         });
 
-        /* */
         /* =========================================
            PHẦN 3: LOGIC HIỆU ỨNG HOA RƠI (CANVAS)
            ========================================= */
