@@ -518,9 +518,8 @@
                 }
 
                 if (file.type === 'image/gif') {
-                    // Tăng giới hạn lên 1MB (1,048,576 bytes)
-                    if (file.size > 1048576) {
-                        showToast('Ảnh GIF quá nặng (Tối đa 1MB)! Vui lòng chọn ảnh nhẹ hơn.', "#f44336");
+                    if (file.size > 716800) {
+                        showToast('Ảnh GIF quá nặng (Tối đa 700KB)! Vui lòng chọn ảnh nhẹ hơn.', "#f44336");
                         return;
                     }
                     const reader = new FileReader();
@@ -559,9 +558,8 @@
             const desc = document.getElementById('input-desc').value;
             const avatarBase64 = avatarImg.src;
 
-            // Nới rộng giới hạn lưu Base64 để hỗ trợ ảnh GIF 1MB. (Lưu ý giới hạn tuyệt đối của Firestore là ~1.048MB)
-            if (avatarBase64.length > 1048400) {
-                showToast("Dung lượng ảnh sau khi xử lý vượt mức 1MB của Cloud! Vui lòng chọn ảnh khác nhỏ hơn.", "#f44336");
+            if (avatarBase64.length > 950000) {
+                showToast("Dung lượng ảnh hiện tại quá lớn! Vui lòng chọn ảnh khác nhỏ hơn.", "#f44336");
                 return;
             }
             
