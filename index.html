@@ -354,14 +354,14 @@
             }
         });
 
-        /* */
         // 2. Kiểm tra URL xem có ID chia sẻ không
         async function checkUrlAndLoad() {
             const urlParams = new URLSearchParams(window.location.search);
             const sharedId = urlParams.get('id');
 
-            if (sharedId) {
-                // Chế độ cho người xem link chia sẻ
+            // SỬA Ở ĐÂY: Thêm điều kiện kiểm tra xem ID trên link có khác với ID của chính bạn không
+            if (sharedId && sharedId !== currentUser.uid) {
+                // Chế độ cho người xem link chia sẻ (Read-Only)
                 isReadOnly = true;
                 document.getElementById('input-name').readOnly = true;
                 document.getElementById('input-quote').readOnly = true;
