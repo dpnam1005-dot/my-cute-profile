@@ -49,6 +49,23 @@
             will-change: transform;
         }
 
+        #hhw-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2; /* Nằm trên lớp sakura, dưới thẻ profile */
+            pointer-events: none;
+        }
+
+        .hhw-heart {
+            position: absolute;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
         /* === MAIN CARD STYLING === */
         .profile-card {
             position: relative;
@@ -87,7 +104,7 @@
             width: 120px;
             height: 120px;
             margin: 0 auto 20px;
-            cursor: default; /* Đã đổi thành default vì không cho click thay ảnh nữa */
+            cursor: pointer; /* Bật lại con trỏ để click có hiệu ứng */
             border-radius: 50%;
             box-shadow: 0 8px 20px rgba(255, 141, 161, 0.4);
             transition: transform 0.2s;
@@ -322,6 +339,7 @@
 <body>
 
     <canvas id="sakura-canvas"></canvas>
+    <canvas id="hhw-canvas"></canvas>
 
     <div class="profile-card">
         
@@ -333,7 +351,7 @@
             <div class="badge badge-4">Xin chào</div>
         </div>
 
-        <input type="text" class="user-name" id="input-name" value="HIẾU HẠNH">
+        <input type="text" class="user-name" id="input-name" value="HIỂU HẠNH">
         <div class="user-role">SALES ADMIN</div>
         
         <textarea class="user-quote" id="input-quote">"Những gì xinh đẹp thường đúng một mình :>"</textarea>
@@ -468,6 +486,127 @@
             requestAnimationFrame(animate);
         }
         animate();
+
+        // === HỆ THỐNG SCRIPT HIỆU ỨNG TIM & PHÁO HOA KHI CLICK AVATAR ===
+        (function() {
+            const replies = [
+                "Ui chạm nhẹ thui đằng ấy ơi, đang bận check hợp đồng nè! 🌸",
+                "Cảm ơn đằng ấy đã tương tác nhen! Chúc ngày ngọt ngào! 💕",
+                "Xinh gái vạn người mê đang tràn đầy năng lượng đây! 🔥",
+                "Trà sữa không? Tớ đang thèm một ly đây nè! 🥤"
+            ];
+
+            const box = document.querySelector('.profile-card');
+            const avatarBtn = document.getElementById('avatar-container');
+            
+            function showCuteToast(msg) {
+                // Tận dụng hàm showToast có sẵn nhưng đổi màu hồng đáng yêu
+                showToast(msg, "#ff8da1");
+            }
+
+            function createHeart(x, y) {
+                const heart = document.createElement('div');
+                heart.className = 'hhw-heart';
+                heart.innerText = ['❤️', '💖', '✨', '🌸', '💘'][Math.floor(Math.random() * 5)];
+                heart.style.left = `${x}px`;
+                heart.style.top = `${y}px`;
+                box.appendChild(heart);
+
+                // Tính toán hướng bay ngẫu nhiên tỏa ra khắp khung thẻ
+                const angle = Math.random() * Math.PI * 2; // Góc bay 360 độ
+                const distance = Math.random() * 250 + 80; // Độ xa lan tỏa từ 80px đến 330px
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance - 80; // Trừ đi một chút để tim có xu hướng bay lên nhiều hơn
+
+                const duration = 1000 + Math.random() * 800; // Thời gian bay từ 1s đến 1.8s
+
+                // Dùng Web Animations API để tạo hiệu ứng bung tỏa mượt mà
+                heart.animate([
+                    { transform: 'translate(-50%, -50%) scale(0.2)', opacity: 1 },
+                    { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(${Math.random() * 1.5 + 1})`, opacity: 0 }
+                ], {
+                    duration: duration,
+                    easing: 'cubic-bezier(0.25, 1, 0.5, 1)', // Bung nhanh lúc đầu, bay chậm dần
+                    fill: 'forwards'
+                });
+
+                setTimeout(() => heart.remove(), duration);
+            }
+
+            // Click Avatar
+            if(avatarBtn) {
+                avatarBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const rect = avatarBtn.getBoundingClientRect();
+                    const boxRect = box.getBoundingClientRect();
+                    // Tính tọa độ tim thả bên trong Box
+                    const x = rect.left - boxRect.left + rect.width / 2;
+                    const y = rect.top - boxRect.top + rect.height / 2;
+
+                    // Tăng số lượng tim lên 35 trái để lan tỏa kín khung
+                    for (let i = 0; i < 35; i++) createHeart(x, y);
+                    
+                    // Tính tọa độ pháo hoa trên màn hình
+                    const canvasX = rect.left + rect.width / 2;
+                    const canvasY = rect.top + rect.height / 2;
+                    createExplosion(canvasX, canvasY);
+                    
+                    showCuteToast(replies[Math.floor(Math.random() * replies.length)]);
+                });
+            }
+
+            // Canvas Pháo hoa nhẹ nhàng
+            const hhwCanvas = document.getElementById('hhw-canvas');
+            if(!hhwCanvas) return;
+            const ctxHhw = hhwCanvas.getContext('2d');
+            let wHhw, hHhw; let hhwParticles = []; 
+            const colors = ['#ff4365', '#ff839b', '#f7d070', '#ff9ebb', '#ffffff'];
+
+            function resizeHhw() {
+                wHhw = hhwCanvas.offsetWidth || window.innerWidth; 
+                hHhw = hhwCanvas.offsetHeight || window.innerHeight;
+                hhwCanvas.width = wHhw; hhwCanvas.height = hHhw;
+            }
+            window.addEventListener('resize', resizeHhw);
+            
+            class HhwParticle {
+                constructor(x, y) {
+                    this.x = x; this.y = y; this.alpha = 1;
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.speed = Math.random() * 4 + 1;
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                }
+                update(i) {
+                    this.speed *= 0.95; this.x += Math.cos(this.angle) * this.speed;
+                    this.y += Math.sin(this.angle) * this.speed + 0.05; this.alpha -= 0.02;
+                    if (this.alpha <= 0) hhwParticles.splice(i, 1);
+                }
+                draw() {
+                    ctxHhw.globalAlpha = this.alpha; ctxHhw.fillStyle = this.color;
+                    ctxHhw.beginPath(); ctxHhw.arc(this.x, this.y, 2, 0, Math.PI * 2); ctxHhw.fill();
+                }
+            }
+
+            function createExplosion(x, y) {
+                for (let i = 0; i < 30; i++) hhwParticles.push(new HhwParticle(x, y));
+            }
+
+            function animateHhw() {
+                ctxHhw.clearRect(0, 0, wHhw, hHhw);
+                for (let i = hhwParticles.length - 1; i >= 0; i--) {
+                    hhwParticles[i].update(i);
+                    if(hhwParticles[i]) hhwParticles[i].draw();
+                }
+                requestAnimationFrame(animateHhw);
+            }
+
+            setTimeout(() => {
+                resizeHhw();
+                animateHhw();
+                // Bắn một đợt pháo hoa nhẹ lúc vừa tải xong để gây bất ngờ
+                createExplosion(wHhw/2, hHhw/3); 
+            }, 300);
+        })();
     </script>
 </body>
 </html>
