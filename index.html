@@ -124,9 +124,9 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* Đã chỉnh từ center thành 35% center để dời khung hình. 
-               Thay đổi số 35% (từ 0% đến 100%) để căn lại nếu cần */
-            object-position: 10% center; 
+            /* Chỉnh số 10% (trái/phải) và 30% (lên/xuống) để dời vị trí ảnh. 
+               Số % thứ 2 càng nhỏ (tiến về 0%) thì ảnh càng dịch xuống dưới */
+            object-position: 10% 30%; 
             border-radius: 50%;
             display: block; /* Tránh khoảng trắng thừa ở dưới đáy ảnh */
             position: relative;
@@ -356,8 +356,8 @@
             <div class="badge badge-4">Xin chào</div>
         </div>
 
-        <input type="text" class="user-name" id="input-name" value="HIẾU HẠNH 👑">
-        <div class="user-role">SALES ADMIN</div>
+        <input type="text" class="user-name" id="input-name" value="HIẾU HẠNH">
+        <div class="user-role">SALES ADMIN 👑</div>
         
         <textarea class="user-quote" id="input-quote">"Những gì xinh đẹp thường đứng một mình :>"</textarea>
         
