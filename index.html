@@ -43,6 +43,10 @@
             height: 100%;
             z-index: 0;
             pointer-events: none; /* Xuyên thao tác chuột qua canvas */
+            /* Ép GPU xử lý để chống giật khi canvas vẽ liên tục */
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
+            will-change: transform;
         }
 
         /* === MAIN CARD STYLING === */
@@ -52,23 +56,29 @@
             background: var(--card-bg);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            width: 440px;
+            width: 460px; /* Đã tăng lên 550px theo tỷ lệ khung đỏ bên ngoài */
             border-radius: 30px;
-            padding: 40px 30px;
+            padding: 60px 50px; /* Tăng padding để kéo dài chiều cao và tạo độ thoáng */
             box-shadow: var(--shadow);
             text-align: center;
             border: 2px solid rgba(255, 255, 255, 0.5);
+            
+            /* --- BẮT ĐẦU FIX LỖI GIẬT TRONG IFRAME --- */
+            /* Ép thẻ Card xử lý trong một layer 3D riêng biệt, giảm tải cho CPU */
             transform: translate3d(0, 0, 0);
             -webkit-transform: translate3d(0, 0, 0);
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
             will-change: transform, backdrop-filter;
+            /* --- KẾT THÚC FIX LỖI --- */
 
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .profile-card:hover {
-            transform: translateY(-5px);
+            transform: translate3d(0, -5px, 0);
+            -webkit-transform: translate3d(0, -5px, 0);
+            box-shadow: 0 20px 40px rgba(255, 141, 161, 0.3);
         }
 
         /* === AVATAR SECTION === */
@@ -77,12 +87,16 @@
             width: 120px;
             height: 120px;
             margin: 0 auto 20px;
-            cursor: pointer;
+            cursor: default; /* Đã đổi thành default vì không cho click thay ảnh nữa */
             border-radius: 50%;
             box-shadow: 0 8px 20px rgba(255, 141, 161, 0.4);
             transition: transform 0.2s;
             background: white;
             padding: 4px;
+            /* Đảm bảo căn giữa tuyệt đối */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .avatar-container:hover {
@@ -93,29 +107,9 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center; /* Căn giữa nội dung ảnh */
             border-radius: 50%;
-        }
-
-        .avatar-overlay {
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            right: 4px;
-            bottom: 4px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 12px;
-            font-weight: 600;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .avatar-container:hover .avatar-overlay {
-            opacity: 1;
+            display: block; /* Tránh khoảng trắng thừa ở dưới đáy ảnh */
         }
 
         /* Badges bay quanh avatar */
@@ -332,9 +326,8 @@
     <div class="profile-card">
         
         <div class="avatar-container" id="avatar-container">
-            <img id="avatar-img" src="https://api.dicebear.com/9.x/micah/svg?seed=HieuHanh&backgroundColor=ffb7c5" alt="Avatar">
-            <div class="avatar-overlay" id="avatar-overlay">Thay ảnh</div>
-            <input type="file" id="file-upload" accept="image/*" hidden>
+            <!-- THAY LINK ẢNH CỦA BẠN VÀO THUỘC TÍNH SRC BÊN DƯỚI -->
+            <img id="avatar-img" src="https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/687698405_3475397069294009_8851932711100266421_n.jpg?stp=dst-jpg_tt6&cstp=mx1366x2048&ctp=s1366x2048&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MkEFMRWp3xwQ7kNvwGYU1__&_nc_oc=Adpx_3iiOFdLpwu-AHkH3BcyvtPwhMHvRUNdaeMdL__jTr9_nIu0pRHjRCe5sQZXXZM&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=6MMgl9wGqsiigxJbzG4ppw&_nc_ss=7b2a8&oh=00_Af9l4RHkHnWg5FZRjJkOJTXwqNv-LrJD-2n8YsfLN7y5dg&oe=6A2BEBF9">
             
             <div class="badge badge-1">Uống 2 lít nước chưa?</div>
             <div class="badge badge-2">Thẳng lưng</div>
@@ -365,7 +358,7 @@
                 🚧 Đang cập nhật
             </h3>
 
-            <p style="text-align:center; color:#666; font-family:'Quicksand',sans-serif;">
+            <p style="text-align:center; color:#666; font-family:'Quicksand',sans-serif; margin-top: 10px;">
                 Chúng tôi sẽ cập nhật vào thời gian sớm nhất!
             </p>
         </div>
@@ -373,13 +366,11 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const avatarContainer = document.getElementById('avatar-container');
-        const fileUpload = document.getElementById('file-upload');
         const avatarImg = document.getElementById('avatar-img');
-        const avatarOverlay = document.getElementById('avatar-overlay');
         const btnSave = document.getElementById('btn-save');
         const btnPortfolio = document.getElementById('btn-portfolio');
         const toastMsg = document.getElementById('toast-msg');
@@ -392,7 +383,6 @@
         let hasLoaded = false;
 
         // ⚡ CƠ CHẾ UID DỰ PHÒNG ⚡
-        // Nếu trang web bị Firebase Auth chặn do chưa thêm domain, ta vẫn có 1 ID riêng để lưu vào Database.
         let myUid = localStorage.getItem('cute_profile_uid');
         if (!myUid) {
             myUid = 'user_' + Math.random().toString(36).substring(2, 12);
@@ -409,6 +399,7 @@
             measurementId: "G-HPF1TR6VTC"
         };
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : fallbackConfig;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -416,10 +407,14 @@
 
         const initAuth = async () => {
             try {
-                await signInAnonymously(auth);
+                // Ưu tiên token tùy chỉnh của môi trường preview nếu có
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
             } catch (error) {
-                console.warn("Auth bị chặn (Có thể do chưa khai báo Tên miền). Sẽ dùng ID dự phòng:", myUid);
-                // Auth lỗi thì vẫn cho chạy hàm tải dữ liệu
+                console.warn("Auth bị chặn. Sẽ dùng ID dự phòng:", myUid);
                 checkUrlAndLoad();
             }
         };
@@ -427,15 +422,14 @@
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                myUid = user.uid; // Cập nhật sang UID chuẩn của Firebase
+                myUid = user.uid; // Cập nhật sang UID chuẩn
                 localStorage.setItem('cute_profile_uid', myUid);
             }
-            // Dù thành công hay thất bại cũng gọi hàm lấy dữ liệu để bạn bè luôn xem được
             checkUrlAndLoad(); 
         });
 
         async function checkUrlAndLoad() {
-            if (hasLoaded) return; // Chặn không cho tải lại 2 lần
+            if (hasLoaded) return;
             hasLoaded = true;
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -448,11 +442,10 @@
                 document.getElementById('input-desc').readOnly = true;
                 
                 btnSave.style.display = 'none'; 
-                avatarOverlay.style.display = 'none'; 
-                avatarContainer.style.cursor = 'default';
-
+                
                 try {
-                    const docRef = doc(db, 'profiles', sharedId);
+                    // Áp dụng cấu trúc collection chuẩn của môi trường để không bị lỗi permission
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', sharedId);
                     const docSnap = await getDoc(docRef);
                     if (docSnap.exists()) {
                         const data = docSnap.data();
@@ -489,58 +482,6 @@
             setTimeout(() => toastMsg.classList.remove('show'), 4000);
         }
 
-        avatarContainer.addEventListener('click', (e) => {
-            if (!isReadOnly) fileUpload.click();
-        });
-
-        function resizeImage(file, maxWidth, maxHeight, callback) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    let width = img.width; let height = img.height;
-                    if (width > height && width > maxWidth) {
-                        height *= maxWidth / width; width = maxWidth;
-                    } else if (height > maxHeight) {
-                        width *= maxHeight / height; height = maxHeight;
-                    }
-                    const cvs = document.createElement('canvas');
-                    cvs.width = width; cvs.height = height;
-                    const ctxCvs = cvs.getContext('2d');
-                    ctxCvs.drawImage(img, 0, 0, width, height);
-                    callback(cvs.toDataURL('image/jpeg', 0.7)); // Đã nén nhẹ
-                }
-                img.src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        }
-
-        fileUpload.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                if (!file.type.startsWith('image/')) {
-                    showToast('Vui lòng chọn một file hình ảnh!', "#f44336");
-                    return;
-                }
-
-                if (file.type === 'image/gif') {
-                    if (file.size > 716800) {
-                        showToast('Ảnh GIF quá nặng (Tối đa 700KB)! Vui lòng chọn ảnh nhẹ hơn.', "#f44336");
-                        return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        avatarImg.src = e.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    resizeImage(file, 250, 250, (compressedBase64) => {
-                        avatarImg.src = compressedBase64;
-                    });
-                }
-            }
-        });
-
         btnPortfolio.addEventListener('click', () => {
             portfolioModal.style.display = 'flex';
             setTimeout(() => portfolioModal.classList.add('show'), 10);
@@ -563,11 +504,6 @@
             const quote = document.getElementById('input-quote').value;
             const desc = document.getElementById('input-desc').value;
             const avatarBase64 = avatarImg.src;
-
-            if (avatarBase64.length > 950000) {
-                showToast("Dung lượng ảnh hiện tại quá lớn! Vui lòng chọn ảnh khác nhỏ hơn.", "#f44336");
-                return;
-            }
             
             localStorage.setItem('cute_profile_name', name);
             localStorage.setItem('cute_profile_quote', quote);
@@ -579,8 +515,8 @@
 
             if (db) {
                 try {
-                    // Dùng myUid để lưu (đảm bảo lúc nào cũng có ID dù Auth lỗi)
-                    const docRef = doc(db, 'profiles', myUid);
+                    // Áp dụng cấu trúc collection chuẩn của môi trường để không bị lỗi permission
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', myUid);
                     await setDoc(docRef, {
                         name, quote, desc, avatar: avatarBase64, 
                         updatedAt: new Date().toISOString()
