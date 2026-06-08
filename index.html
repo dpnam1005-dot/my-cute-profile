@@ -326,8 +326,7 @@
     <div class="profile-card">
         
         <div class="avatar-container" id="avatar-container">
-            <!-- THAY LINK ẢNH CỦA BẠN VÀO THUỘC TÍNH SRC BÊN DƯỚI -->
-            <img id="avatar-img" src="https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/687698405_3475397069294009_8851932711100266421_n.jpg?stp=dst-jpg_tt6&cstp=mx1366x2048&ctp=s1366x2048&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MkEFMRWp3xwQ7kNvwGYU1__&_nc_oc=Adpx_3iiOFdLpwu-AHkH3BcyvtPwhMHvRUNdaeMdL__jTr9_nIu0pRHjRCe5sQZXXZM&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=6MMgl9wGqsiigxJbzG4ppw&_nc_ss=7b2a8&oh=00_Af9l4RHkHnWg5FZRjJkOJTXwqNv-LrJD-2n8YsfLN7y5dg&oe=6A2BEBF9">
+            <img id="avatar-img" src="https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/687698405_3475397069294009_8851932711100266421_n.jpg?stp=dst-jpg_tt6&cstp=mx1366x2048&ctp=s1366x2048&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MkEFMRWp3xwQ7kNvwGYU1__&_nc_oc=Adpx_3iiOFdLpwu-AHkH3BcyvtPwhMHvRUNdaeMdL__jTr9_nIu0pRHjRCe5sQZXXZM&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=6MMgl9wGqsiigxJbzG4ppw&_nc_ss=7b2a8&oh=00_Af9l4RHkHnWg5FZRjJkOJTXwqNv-LrJD-2n8YsfLN7y5dg&oe=6A2BEBF9" alt="Avatar">
             
             <div class="badge badge-1">Uống 2 lít nước chưa?</div>
             <div class="badge badge-2">Thẳng lưng</div>
@@ -365,12 +364,6 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const avatarContainer = document.getElementById('avatar-container');
-        const avatarImg = document.getElementById('avatar-img');
         const btnSave = document.getElementById('btn-save');
         const btnPortfolio = document.getElementById('btn-portfolio');
         const toastMsg = document.getElementById('toast-msg');
@@ -378,102 +371,19 @@
         const portfolioModal = document.getElementById('portfolio-modal');
         const closeModal = document.getElementById('close-modal');
 
-        let db;
-        let isReadOnly = false;
-        let hasLoaded = false;
-
-        // ⚡ CƠ CHẾ UID DỰ PHÒNG ⚡
-        let myUid = localStorage.getItem('cute_profile_uid');
-        if (!myUid) {
-            myUid = 'user_' + Math.random().toString(36).substring(2, 12);
-            localStorage.setItem('cute_profile_uid', myUid);
-        }
-
-        const fallbackConfig = {
-            apiKey: "AIzaSyA1D0XaTN1m8rz1iyKbdzkWQTvdvbDOwCA",
-            authDomain: "project-8798774196934518938.firebaseapp.com",
-            projectId: "project-8798774196934518938",
-            storageBucket: "project-8798774196934518938.firebasestorage.app",
-            messagingSenderId: "163874898866",
-            appId: "1:163874898866:web:f6843ee56eb1606b0e5aab",
-            measurementId: "G-HPF1TR6VTC"
-        };
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : fallbackConfig;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        db = getFirestore(app);
-
-        const initAuth = async () => {
-            try {
-                // Ưu tiên token tùy chỉnh của môi trường preview nếu có
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.warn("Auth bị chặn. Sẽ dùng ID dự phòng:", myUid);
-                checkUrlAndLoad();
-            }
-        };
-        initAuth();
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                myUid = user.uid; // Cập nhật sang UID chuẩn
-                localStorage.setItem('cute_profile_uid', myUid);
-            }
-            checkUrlAndLoad(); 
-        });
-
-        async function checkUrlAndLoad() {
-            if (hasLoaded) return;
-            hasLoaded = true;
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const sharedId = urlParams.get('id');
-
-            if (sharedId && sharedId !== myUid) {
-                isReadOnly = true;
-                document.getElementById('input-name').readOnly = true;
-                document.getElementById('input-quote').readOnly = true;
-                document.getElementById('input-desc').readOnly = true;
-                
-                btnSave.style.display = 'none'; 
-                
-                try {
-                    // Áp dụng cấu trúc collection chuẩn của môi trường để không bị lỗi permission
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', sharedId);
-                    const docSnap = await getDoc(docRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        if (data.name) document.getElementById('input-name').value = data.name;
-                        if (data.quote) document.getElementById('input-quote').value = data.quote;
-                        if (data.desc) document.getElementById('input-desc').value = data.desc;
-                        if (data.avatar) avatarImg.src = data.avatar;
-                    }
-                } catch (e) {
-                    console.error("Lỗi khi tải dữ liệu từ Cloud:", e);
-                }
-            } else {
-                loadSavedDataLocal();
-            }
-        }
-
+        // Khôi phục dữ liệu văn bản từ Local Storage (nếu có)
         function loadSavedDataLocal() {
-            if(isReadOnly) return;
             const savedName = localStorage.getItem('cute_profile_name');
             const savedQuote = localStorage.getItem('cute_profile_quote');
             const savedDesc = localStorage.getItem('cute_profile_desc');
-            const savedAvatar = localStorage.getItem('cute_profile_avatar');
 
             if (savedName) document.getElementById('input-name').value = savedName;
             if (savedQuote) document.getElementById('input-quote').value = savedQuote;
             if (savedDesc) document.getElementById('input-desc').value = savedDesc;
-            if (savedAvatar) avatarImg.src = savedAvatar;
         }
+        
+        // Chạy hàm khôi phục khi trang tải
+        loadSavedDataLocal();
 
         function showToast(msg, bgColor = "#4caf50") {
             toastMsg.innerText = msg;
@@ -499,56 +409,20 @@
             }
         });
 
-        btnSave.addEventListener('click', async function() {
+        // Xử lý lưu thông tin vào Local Storage khi bấm nút Save
+        btnSave.addEventListener('click', function() {
             const name = document.getElementById('input-name').value;
             const quote = document.getElementById('input-quote').value;
             const desc = document.getElementById('input-desc').value;
-            const avatarBase64 = avatarImg.src;
             
             localStorage.setItem('cute_profile_name', name);
             localStorage.setItem('cute_profile_quote', quote);
             localStorage.setItem('cute_profile_desc', desc);
-            localStorage.setItem('cute_profile_avatar', avatarBase64);
 
-            const originalText = this.innerText;
-            this.innerText = "Đang đồng bộ Cloud...";
-
-            if (db) {
-                try {
-                    // Áp dụng cấu trúc collection chuẩn của môi trường để không bị lỗi permission
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', myUid);
-                    await setDoc(docRef, {
-                        name, quote, desc, avatar: avatarBase64, 
-                        updatedAt: new Date().toISOString()
-                    });
-
-                    // Cập nhật link trên trình duyệt
-                    const newUrl = new URL(window.location.href);
-                    newUrl.searchParams.set('id', myUid);
-                    window.history.pushState({path: newUrl.href}, '', newUrl.href);
-
-                    // ⚡ TỰ ĐỘNG COPY LINK VÀO BỘ NHỚ TẠM ⚡
-                    try {
-                        const copyInput = document.createElement("input");
-                        copyInput.value = newUrl.href;
-                        document.body.appendChild(copyInput);
-                        copyInput.select();
-                        document.execCommand("copy");
-                        document.body.removeChild(copyInput);
-                        
-                        showToast("Đã lưu thành công & Đã tự động COPY LINK! Dán gửi bạn bè ngay ✨", "#4caf50");
-                    } catch(err) {
-                        showToast("Đã lưu! Vui lòng copy đường link trên thanh địa chỉ để gửi ✨");
-                    }
-
-                } catch (e) {
-                    console.error("Lỗi lưu lên Cloud:", e);
-                    showToast("Lỗi kết nối Firebase! Lưu cục bộ thành công.", "#ff9800");
-                }
-            }
-            this.innerText = originalText;
+            showToast("Đã lưu thông tin cục bộ thành công! ✨", "#4caf50");
         });
 
+        // === HIỆU ỨNG CANVAS HOA ANH ĐÀO ===
         const canvas = document.getElementById('sakura-canvas');
         const ctx = canvas.getContext('2d');
         let width, height; let petals = []; const NUM_PETALS = 35; 
