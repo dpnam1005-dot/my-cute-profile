@@ -124,9 +124,13 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center; /* Căn giữa nội dung ảnh */
+            /* Đã chỉnh từ center thành 35% center để dời khung hình. 
+               Thay đổi số 35% (từ 0% đến 100%) để căn lại nếu cần */
+            object-position: 10% center; 
             border-radius: 50%;
             display: block; /* Tránh khoảng trắng thừa ở dưới đáy ảnh */
+            position: relative;
+            z-index: 2;
         }
 
         /* Badges bay quanh avatar */
@@ -141,6 +145,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             border: 1px solid #ffe4e1;
             pointer-events: none;
+            z-index: 5;
         }
 
         .badge-1 { top: -10px; right: -20px; animation: float 3s ease-in-out infinite; }
@@ -344,15 +349,15 @@
     <div class="profile-card">
         
         <div class="avatar-container" id="avatar-container">
-            <img id="avatar-img" src="https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/687698405_3475397069294009_8851932711100266421_n.jpg?stp=dst-jpg_tt6&cstp=mx1366x2048&ctp=s1366x2048&_nc_cat=105&ccb=1-7&_nc_sid=833d8c&_nc_ohc=MkEFMRWp3xwQ7kNvwGYU1__&_nc_oc=Adpx_3iiOFdLpwu-AHkH3BcyvtPwhMHvRUNdaeMdL__jTr9_nIu0pRHjRCe5sQZXXZM&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=6MMgl9wGqsiigxJbzG4ppw&_nc_ss=7b2a8&oh=00_Af9l4RHkHnWg5FZRjJkOJTXwqNv-LrJD-2n8YsfLN7y5dg&oe=6A2BEBF9" alt="Avatar">
+            <img id="avatar-img" src="https://scontent.fsgn8-4.fna.fbcdn.net/v/t39.30808-6/687830194_3475397035960679_6365895174479083671_n.jpg?stp=dst-jpg_tt6&cstp=mx1536x2048&ctp=s1536x2048&_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_ohc=4dtX8szPYPQQ7kNvwHZRRSp&_nc_oc=Ado1uon2Ami-bMSalPpik6UGcQhbS8oZEnweHFH8ph4m8qNaSOr4uvNdwVbUp164ngM&_nc_zt=23&_nc_ht=scontent.fsgn8-4.fna&_nc_gid=RyaVypIExwEe8JGi0y3TWw&_nc_ss=7b2a8&oh=00_Af_eVniivEepJVVjoNZ5DJigSba6uYk12MOOCO7xeGWG6g&oe=6A2C5FBA">
             
             <div class="badge badge-1">Uống 2 lít nước chưa?</div>
             <div class="badge badge-2">Thẳng lưng</div>
             <div class="badge badge-4">Xin chào</div>
         </div>
 
-        <input type="text" class="user-name" id="input-name" value="HIỂU HẠNH">
-        <div class="user-role">SALES ADMIN 👸</div>
+        <input type="text" class="user-name" id="input-name" value="HIẾU HẠNH">
+        <div class="user-role">SALES ADMIN</div>
         
         <textarea class="user-quote" id="input-quote">"Những gì xinh đẹp thường đứng một mình :>"</textarea>
         
