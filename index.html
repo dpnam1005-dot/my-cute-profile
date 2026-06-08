@@ -58,7 +58,13 @@
             box-shadow: var(--shadow);
             text-align: center;
             border: 2px solid rgba(255, 255, 255, 0.5);
-            transition: transform 0.3s ease;
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            will-change: transform, backdrop-filter;
+
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .profile-card:hover {
